@@ -1,12 +1,13 @@
-import React, { useContext } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Cart from './pages/Cart';
-import Admin from './pages/Admin';
-import { AuthContext } from './context/AuthContext';
+import React, { useContext } from "react";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Cart from "./pages/Cart";
+import Admin from "./pages/Admin";
+import { AuthContext } from "./context/AuthContext";
+import Payment from "./pages/Payment";
 
 function App() {
   const { user } = useContext(AuthContext);
@@ -20,7 +21,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/cart" element={<Cart />} />
-          {user?.role === 'admin' && <Route path="/admin" element={<Admin />} />}
+          {user?.role === "admin" && (
+            <Route path="/admin" element={<Admin />} />
+          )}
+          <Route path="/payment" element={<Payment />} />
         </Routes>
       </main>
     </div>

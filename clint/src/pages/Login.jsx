@@ -10,9 +10,16 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await api.post('/auth/login', form);
+            const { data } = await api.post('/api/auth/login', form);
             login(data);
-        } catch (err) { alert('Login yoki parol xato!'); }
+        } catch (err) {
+            console.log("URL:", err?.config?.baseURL + err?.config?.url);
+            console.log("STATUS:", err?.response?.status);
+            console.log("DATA:", err?.response?.data);
+            console.log("MSG:", err.message);
+    
+            alert(err?.response?.data?.message || err.message);
+        }
     };
 
     return (
