@@ -6,8 +6,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
+import Likes from "./pages/Like";
 import { AuthContext } from "./context/AuthContext";
 import Payment from "./pages/Payment";
+
 
 function App() {
   const { user } = useContext(AuthContext);
@@ -17,14 +19,14 @@ function App() {
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
         <Routes>
-          <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home />} />
+       <Route path="/likes" element={<Likes />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/cart" element={<Cart />} />
-          {user?.role === "admin" && (
-            <Route path="/admin" element={<Admin />} />
-          )}
+          {user?.role === "admin" && (<Route path="/admin" element={<Admin />} />)}
           <Route path="/payment" element={<Payment />} />
+       
         </Routes>
       </main>
     </div>

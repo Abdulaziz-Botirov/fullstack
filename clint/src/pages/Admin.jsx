@@ -6,12 +6,34 @@ const Admin = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+      
         try {
-            await api.post('/products', form);
-            alert('Mahsulot qo\'shildi!');
-            setForm({ title: '', price: '', category: '', description: '', image: '' });
-        } catch(e) { alert('Admin huquqi kerak yoki xatolik!'); }
-    };
+          const token = localStorage.getItem("token");
+      
+          await api.post('/api/products', form, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+      
+          alert("Mahsulot qo'shildi!");
+      
+          setForm({
+            title: '',
+            price: '',
+            category: '',
+            description: '',
+            image: ''
+          });
+      
+        } catch (e) {
+          console.log("STATUS:", e?.response?.status);
+          console.log("DATA:", e?.response?.data);
+          console.log("MESSAGE:", e.message);
+      
+          alert(e?.response?.data?.message || e.message);
+        }
+      };
 
     return (
         <div className="max-w-2xl mx-auto">

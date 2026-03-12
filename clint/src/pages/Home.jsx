@@ -2,6 +2,7 @@ import api from "../api";
 import React, { useState, useEffect, useContext } from "react";
 import { Heart, ShoppingBag, X } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import HeroSlider from "../components/HeroSlider";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -135,7 +136,16 @@ const Home = () => {
   const currentProduct = products.find((p) => p.id === openCommentsFor);
 
   return (
+
+    
     <div>
+      <div>
+  <HeroSlider />
+
+  <h2 className="text-2xl font-bold mb-8">Mahsulotlar</h2>
+
+  {/* qolgan kod */}
+</div>
       <h2 className="text-2xl font-bold mb-8">Mahsulotlar</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

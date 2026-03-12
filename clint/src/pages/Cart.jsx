@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import api from '../api';
-import { Trash2, Minus, Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from "react";
+import api from "../api";
+import { Trash2, Minus, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
@@ -13,24 +13,33 @@ const Cart = () => {
   const fetchCart = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/api/cart', {
-        headers: { Authorization: `Bearer ${token}` }
+
+      const res = await api.get("/api/cart", {
+        headers: { Authorization: `Bearer ${token}` },
       });
+
+      console.log("CART DATA:", res.data);
       setCart(res.data);
     } catch (e) {
-      console.log("URL:", e?.config?.baseURL + e?.config?.url);
-      console.log("STATUS:", e?.response?.status);
-      console.log("DATA:", e?.response?.data);
-      console.log("MSG:", e.message);
+      console.log("GET URL:", e?.config?.baseURL + e?.config?.url);
+      console.log("GET STATUS:", e?.response?.status);
+      console.log("GET DATA:", e?.response?.data);
+      console.log("GET MSG:", e.message);
       alert(e?.response?.data?.message || e.message);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchCart(); }, []);
+  useEffect(() => {
+    if (token) {
+      fetchCart();
+    }
+  }, [token]);
 
-  const getProduct = (item) => item.Product || item.product || {};
+  const getProduct = (item) => {
+    return item?.Product || item?.product || {};
+  };
 
   const total = useMemo(() => {
     return cart.reduce((acc, item) => {
@@ -41,45 +50,76 @@ const Cart = () => {
     }, 0);
   }, [cart]);
 
-  const removeItem = async (id) => {
+  const removeItem = async (cartItemId) => {
     try {
-      await api.delete(`/api/cart/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      console.log("DELETE CART ITEM ID:", cartItemId);
+
+      const res = await api.delete(`/api/cart/${cartItemId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setCart(prev => prev.filter(i => i.id !== id));
+
+      console.log("DELETE RES:", res.data);
+
+      setCart((prev) => prev.filter((item) => item.id !== cartItemId));
     } catch (e) {
-      console.log("STATUS:", e?.response?.status);
-      console.log("DATA:", e?.response?.data);
+      console.log("DELETE URL:", e?.config?.baseURL + e?.config?.url);
+      console.log("DELETE STATUS:", e?.response?.status);
+      console.log("DELETE DATA:", e?.response?.data);
+      console.log("DELETE MSG:", e.message);
       alert(e?.response?.data?.message || e.message);
     }
   };
 
-  const updateQuantity = async (id, newQty) => {
+  const updateQuantity = async (cartItemId, newQty) => {
     if (newQty < 1) return;
 
     try {
       const res = await api.patch(
-        `/api/cart/${id}`,
+        `/api/cart/${cartItemId}`,
         { quantity: newQty },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
-      setCart(prev => prev.map(i => (i.id === id ? res.data : i)));
+      console.log("PATCH RES:", res.data);
+
+      setCart((prev) =>
+        prev.map((item) => (item.id === cartItemId ? res.data : item))
+      );
     } catch (e) {
-      console.log("STATUS:", e?.response?.status);
-      console.log("DATA:", e?.response?.data);
+      console.log("PATCH URL:", e?.config?.baseURL + e?.config?.url);
+      console.log("PATCH STATUS:", e?.response?.status);
+      console.log("PATCH DATA:", e?.response?.data);
+      console.log("PATCH MSG:", e.message);
       alert(e?.response?.data?.message || e.message);
     }
   };
 
   const goPayment = () => {
-    if (!token) return alert("Oldin tizimga kiring!");
+    if (!token) {
+      alert("Oldin tizimga kiring!");
+      return;
+    }
     navigate("/payment");
   };
 
+  if (!token) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        <h2 className="text-3xl font-black mb-8 uppercase tracking-tighter">
+          Savat
+        </h2>
+        <p className="text-gray-400">Oldin tizimga kiring</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto">
-      <h2 className="text-3xl font-black mb-8 uppercase tracking-tighter">Savat</h2>
+      <h2 className="text-3xl font-black mb-8 uppercase tracking-tighter">
+        Savat
+      </h2>
 
       {loading ? (
         <p className="text-gray-400">Yuklanmoqda...</p>
@@ -87,7 +127,7 @@ const Cart = () => {
         <p className="text-gray-400">Savat bo'sh</p>
       ) : (
         <div className="space-y-4">
-          {cart.map(item => {
+          {cart.map((item) => {
             const p = getProduct(item);
             const price = Number(p.price || 0);
             const qty = Number(item.quantity || 0);
@@ -100,15 +140,28 @@ const Cart = () => {
                 <div className="flex items-center gap-5">
                   <div className="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden flex items-center justify-center">
                     {p.image ? (
-                      <img src={p.image} alt={p.title || p.name} className="w-full h-full object-cover" />
+                      <img
+                        src={p.image}
+                        alt={p.title || p.name || "Mahsulot"}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <span className="text-gray-300 text-xs">Rasm yo'q</span>
                     )}
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-lg">{p.title || p.name || "Mahsulot"}</h4>
-                    <p className="text-gray-400">${price} x {qty}</p>
+                    <h4 className="font-bold text-lg">
+                      {p.title || p.name || "Mahsulot"}
+                    </h4>
+
+                    <p className="text-gray-400">
+                      ${price} x {qty}
+                    </p>
+
+                    <p className="text-xs text-gray-400 mt-1">
+                      cartId: {item.id} | productId: {item.productId}
+                    </p>
 
                     <div className="mt-3 flex items-center gap-3">
                       <button
@@ -133,7 +186,9 @@ const Cart = () => {
                 </div>
 
                 <div className="flex items-center gap-6">
-                  <span className="text-xl font-bold">${(price * qty).toFixed(2)}</span>
+                  <span className="text-xl font-bold">
+                    ${(price * qty).toFixed(2)}
+                  </span>
 
                   <button
                     onClick={() => removeItem(item.id)}
@@ -149,7 +204,9 @@ const Cart = () => {
 
           <div className="mt-10 p-8 bg-black text-white rounded-[40px] flex justify-between items-center shadow-xl">
             <div>
-              <p className="text-gray-400 uppercase text-xs font-bold mb-1">Jami summa</p>
+              <p className="text-gray-400 uppercase text-xs font-bold mb-1">
+                Jami summa
+              </p>
               <h3 className="text-4xl font-black">${total.toFixed(2)}</h3>
             </div>
 
